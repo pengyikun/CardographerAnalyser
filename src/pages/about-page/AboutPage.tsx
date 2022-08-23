@@ -47,7 +47,7 @@ const AboutPage = () => {
                         </div>
                     </div>
                     <a
-                        href="https://github.com/pengyikun/cardographer-analyser" target="_blank"
+                        href="https://github.com/pengyikun/CardographerAnalyser" target="_blank"
                         className="w-4/6 font-light text-xs flex flex-row items-center break-all">https://github.com/pengyikun/CardographerAnalyser
                     </a>
                 </div>
