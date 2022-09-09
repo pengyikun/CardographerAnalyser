@@ -5,6 +5,8 @@
 
 Cardographer Analyser is a Miro plugin that helps users improve their work with digital card-based ideation work. This plugin is an extension of the original Cardographer project on card usage data analysis, and it is intended to help users gain insight quickly and easily by examining visual card association data and smart suggestion.
 
+[Demo Video](https://www.youtube.com/watch?v=aQ6Ioce6Pgk)
+
 [Install Link](https://miro.com/oauth/authorize/?response_type=code&client_id=3458764529618933773&redirect_uri=%2Fconfirm-app-install%2F)
 
 [Document](https://alvin-peng-1.gitbook.io/cardographer-analyser)
