@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const endpoints = "https://cardographer-analyser.herokuapp.com/version"
+const endpoints = "https://cardographer-analyser-api.up.railway.app/version"
 
 export interface VersionInfo {
     versionId: string,
