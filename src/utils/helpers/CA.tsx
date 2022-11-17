@@ -1,3 +1,7 @@
+/**
+ * Contains all helper functions that analyses deck,card and frame data
+ */
+
 import {
     CACard,
     CACardAnalyse, CACardAnalyseOverview, CACardCombinationOverview, CACardFrameOverview, CACardIdeaOverview,

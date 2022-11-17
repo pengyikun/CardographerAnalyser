@@ -60,8 +60,9 @@ export default function App() {
         lbdRecordingState: state.lbdRecordingState,
     }), shallow)
     const dispatch = useStore((state) => state.dispatch)
-    //const [isVersionChecked, setIsVersionChecked] = React.useState<boolean>(false)
 
+    // recover ui and data state on app opening
+    // handles version update
     useEffect(() => {
         if (caAnalysedCards.size === undefined) {
             console.log('Recovering analysed cards data from local storage')
@@ -138,6 +139,7 @@ export default function App() {
 
     }, [])
 
+    // handles cursor selected items update event
     useEffect(() => {
         (async () => {
             // Update board types every time user perform new selection
@@ -209,7 +211,7 @@ export default function App() {
         })();
     }, [selectedItems])
 
-
+    // Recover (re-analyse) card data stored in local storage
     const recoverAnalysedData = () => {
         const analysedSnapshots = caSnapshots.map(s => {
             return analyseCASnapshot(s)
@@ -221,10 +223,8 @@ export default function App() {
         })
     }
 
+    // Perform detail analyses on specific card
     const analyseSelectedCard = async (_focusedCard: BoardCard) => {
-        // Analyse new focused card if there is a valid card selected
-        // console.log(_focusedCard.name)
-        // console.log(caAnalysedCards)
         const parentFrame = _focusedCard.parentId ? (await miro.board.getById(_focusedCard.parentId) as Frame).title : "No Parent"
         const analysis = caAnalysedCards.get(_focusedCard.name)
         console.log(analysis)
@@ -257,6 +257,7 @@ export default function App() {
         }
     }
 
+    // Perform detail analyses on specific frame
     const analyseSelectedFrame = (_focusedFrame: BoardFrameRaw) => {
         const historicalData = caAnalysedSnapshots.map(snapshot => {
             const frameData = snapshot.analysedFrames.get(_focusedFrame.name)
@@ -302,10 +303,6 @@ export default function App() {
             })
         })
         const unusedCard = cards.filter(card => !frameCardsUsageAnalysis[card.id])
-        // console.log("historicalData", historicalData)
-        // console.log("frameCombinationAnalysis", frameCombinationAnalysis)
-        // console.log("frameCardsUsageAnalysis", frameCardsUsageAnalysis)
-        // console.log("Unused cards: ", unusedCard)
         return {
             cardUsageAnalysis: frameCardsUsageAnalysis,
             combinationAnalysis: frameCombinationAnalysis,
@@ -317,13 +314,7 @@ export default function App() {
 
 
     let content;
-    // if(!isVersionChecked){
-    //     content = <div className="grow flex flex-col justify-center items-center">
-    //         <div
-    //             className="w-16 h-16 border-4 border-cardographerThemeBG border-solid rounded-full animate-spin border-t-transparent"></div>
-    //         <span className="mt-4 text-md font-bold font-montserrat">Checking updates</span>
-    //     </div>
-    // } else
+
     if (page === PAGE_TYPES.HOME) {
         content = <HomePage/>
     } else if (page === PAGE_TYPES.LOGIN) {

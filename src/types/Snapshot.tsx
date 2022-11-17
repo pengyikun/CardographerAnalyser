@@ -1,3 +1,7 @@
+/**
+ * Typings for data that are used for live-recorder functions (comparing and differing miro board snapshots)
+ */
+
 export type LiveBoardCopy = {}
 
 export const LiveBoardNodeMapping = {

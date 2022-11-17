@@ -1,3 +1,7 @@
+/**
+ * Typing for native miro board components
+ */
+
 export type BoardCard = {
     name: string;
     imageUrl: string;

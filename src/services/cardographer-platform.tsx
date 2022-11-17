@@ -1,3 +1,7 @@
+/**
+ * Fetch deck,card,snapshot,analyses and session data using API provided from Cardographer Platform
+ */
+
 import axios from "axios";
 import {CDGAnalyse, CDGDeck, CDGSession, CDGSnapshot, CDGSnapshotBrief} from "../types/CardographerPlatformTypes";
 import {BoardNode} from "@mirohq/websdk-types";

@@ -67,9 +67,9 @@ const AboutPage = () => {
                 <hr className="my-2"/>
                 <div className="font-bold text-md text-gray-500 mt-5 mb-3">Update Note ({versionId})</div>
                 <div className="flex flex-col justify-center items-center text-xs">
-                    {versionDescription.split('<new>').map(d=>{
-                        return     <div key={d}
-                            className="w-11/12 text-gray-500 break-all">
+                    {versionDescription.split('<new>').map(d => {
+                        return <div key={d}
+                                    className="w-11/12 text-gray-500 break-all">
                             -{d}
                         </div>
                     })}

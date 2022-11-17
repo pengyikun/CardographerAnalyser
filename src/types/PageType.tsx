@@ -1,3 +1,7 @@
+/**
+ * Constants for main-page types and sub-page types
+ */
+
 export const PAGE_TYPES = {
     HOME: "Home Page",
     LOGIN: "Cardographer Login",

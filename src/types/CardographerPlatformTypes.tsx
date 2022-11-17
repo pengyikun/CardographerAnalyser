@@ -1,3 +1,7 @@
+/**
+ * Typings that parse and re-organized data from Cardographer Platform
+ */
+
 export interface CDGSnapshotBrief {
     _id: string,
     sessionId: string,

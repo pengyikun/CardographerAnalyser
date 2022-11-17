@@ -1,3 +1,7 @@
+/**
+ * Typings for analysed card data
+ */
+
 import {CDGCard, MiroBoardData} from "./CardographerPlatformTypes";
 
 export interface CASnapshot {

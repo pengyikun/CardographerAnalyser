@@ -1,5 +1,4 @@
 // From https://stackoverflow.com/questions/68278850/how-to-extend-a-keyof-type-so-that-it-includes-modified-versions-of-the-keys-e/68279093#68279093
-
 type sortArg<T> = keyof T | `-${string & keyof T}`
 
 /**

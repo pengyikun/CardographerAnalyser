@@ -1,3 +1,7 @@
+/**
+ * Typings for user credentials and user login state
+ */
+
 export interface LoginState {
     isLoggedIn: boolean,
     loginData?: UserLoginData
