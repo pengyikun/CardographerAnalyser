@@ -13,7 +13,13 @@ import {AnalysePageIdea} from "./AnalysePageIdea";
 
 const AnalysePage = () => {
     const {
-        boardData, caAnalysedSnapshots, focusedCardAnalysis, focusedCardData, caAnalysedCards, caCards
+        boardData,
+        caAnalysedSnapshots,
+        focusedCardAnalysis,
+        focusedCardData,
+        caAnalysedCards,
+        caCards,
+        aiTextCompletionToken
     } = useStore((state) => ({
         caCards: state.caCards,
         caAnalysedSnapshots: state.caAnalysedSnapshots,
@@ -21,6 +27,7 @@ const AnalysePage = () => {
         focusedCardAnalysis: state.focusedCardAnalysis,
         boardData: state.boardData,
         caAnalysedCards: state.caAnalysedCards,
+        aiTextCompletionToken: state.aiTextCompletionToken,
     }), shallow)
 
     const [page, setPage] = useState<AnalyzePageType>(ANALYZE_PAGE_TYPES.BASIC)
@@ -35,7 +42,9 @@ const AnalysePage = () => {
                                         focusedCardData={focusedCardData}
                                         focusedCardAnalysis={focusedCardAnalysis}
                                         caAnalysedSnapshots={caAnalysedSnapshots}
-                                        caAnalysedCards={caAnalysedCards}/>
+                                        caAnalysedCards={caAnalysedCards}
+                                        aiTextCompletionToken={aiTextCompletionToken}
+        />
 
     } else if (page === ANALYZE_PAGE_TYPES["FRAME"]) {
         pageContent = <AnalysePageFrame focusedCardData={focusedCardData}

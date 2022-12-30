@@ -18,6 +18,7 @@ const SettingsPage = () => {
         caCards,
         caAnalysedSnapshots,
         caAnalysedCards,
+        aiTextCompletionToken
     } = useStore((state) => ({
         loginState: state.loginState,
         dataFetchTime: state.dataFetchTime,
@@ -30,10 +31,12 @@ const SettingsPage = () => {
         caCards: state.caCards,
         caAnalysedSnapshots: state.caAnalysedSnapshots,
         caAnalysedCards: state.caAnalysedCards,
+        aiTextCompletionToken: state.aiTextCompletionToken,
 
     }), shallow)
     const dispatch = useStore((state) => state.dispatch)
     const [isExportPanelOpen, setIsExportPanelOpen] = React.useState(false)
+    const [textCompletionAIToken, setTextCompletionAIToken] = React.useState(aiTextCompletionToken == undefined ? "" : aiTextCompletionToken)
 
     const logout = () => {
         dispatch({
@@ -64,12 +67,23 @@ const SettingsPage = () => {
         )
     }
 
+    const updateAICompletionToken = () => {
+        dispatch({
+            type: DISPATCH_TYPES.SET_AI_COMPLETION_TOKEN,
+            payload: {aiCompletionToken: textCompletionAIToken}
+        })
+    }
+
+    const onCompletionAIInputChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
+        setTextCompletionAIToken(event.currentTarget.value)
+    }
+
     // const analysedSnapshots = caSnapshots.map(s => {
     //     return analyseCASnapshot(s)
     // })
     // const analysedCards = analyseCAData(analysedSnapshots)
     // console.log(analysedCards)
-    console.log(caAnalysedSnapshots)
+    // console.log(caAnalysedSnapshots)
 
     return (
         <div className="grow flex flex-col items-center justify-center">
@@ -92,6 +106,22 @@ const SettingsPage = () => {
                         onClick={logout}
                         className="px-4 py-1 w-1/3 rounded-md shadow-md border border-transparent bg-cardographerThemeBG text-gray-200 font-bold font-montserrat text-md hover:bg-red-400">
                         Log out
+                    </button>
+                </div>
+                <div className="pt-4 font-bold text-md text-gray-500 mb-3">AI Service</div>
+                <div className="w-full flex flex-row">
+                    <div className="w-2/6 font-bold">OpenAI</div>
+                    <div className="grow font-light">
+                        <textarea rows={4} value={textCompletionAIToken} onInput={onCompletionAIInputChange}
+                                  className="w-full text-center border border-1 border-gray-300 rounded-md"/>
+                    </div>
+                </div>
+                <hr className="my-2"/>
+                <div className="w-11/12 my-4 flex flex-row items-center justify-evenly">
+                    <button
+                        onClick={updateAICompletionToken}
+                        className="px-4 py-1 rounded-md shadow-md border border-transparent bg-cardographerThemeBG text-gray-200 font-bold font-montserrat text-md hover:bg-red-400">
+                        Update Secret
                     </button>
                 </div>
                 <div className="pt-4 font-bold text-md text-gray-500 mb-3">Saved Data Overview</div>

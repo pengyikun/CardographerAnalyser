@@ -7,6 +7,9 @@ import {
 } from "../../types/ProcessedDataTypes";
 import {CardAnalysisDataBox} from "../../components/CardAnalysisDataBox/CardAnalysisDataBox";
 import {nanoid} from "nanoid";
+import {useRef, useState} from "react";
+import {getTextCompletion} from "../../services/openai";
+import {AITextCompletionResponse} from "../../types/ai";
 
 interface AnalysePageBasicProps {
     boardData: { [frameId: string]: BoardFrame }
@@ -14,12 +17,24 @@ interface AnalysePageBasicProps {
     focusedCardAnalysis: PostProcessedCardAnalysis,
     caAnalysedSnapshots: CASnapshotAnalyse[],
     caAnalysedCards: Map<string, CACardAnalyseOverview>,
+    aiTextCompletionToken: string | undefined,
 }
 
 
 const AnalysePageBasic = (props: AnalysePageBasicProps) => {
-    const {boardData, focusedCardAnalysis, focusedCardData, caAnalysedCards, caAnalysedSnapshots} = props
+    const {
+        boardData,
+        focusedCardAnalysis,
+        focusedCardData,
+        caAnalysedCards,
+        caAnalysedSnapshots,
+        aiTextCompletionToken
+    } = props
 
+    const [isRequestingAICompletion, setIsRequestingAICompletion] = useState(false)
+    const [aiTextCompletionPrompt, setAiTextCompletionPrompt] = useState(`What are the factors to consider when designing a product with the concept of ${focusedCardData.card.name}?`)
+    const [aiTextCompletionResult, setAiTextCompletionResult] = useState(``)
+    const bottomRef = useRef<null | HTMLDivElement>(null)
 
     let frameElements = focusedCardAnalysis.mostOccurredFrames.map(frame => {
         return (
@@ -56,6 +71,32 @@ const AnalysePageBasic = (props: AnalysePageBasicProps) => {
             return <div key={nanoid(5)}
                         className="mb-1 px-3 mr-1 text-xs text-gray-700 font-bold border border-gray-200 bg-gray-200 rounded-md">{card.name}</div>
         })
+    }
+
+    const onAICompletionPromptChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
+        setAiTextCompletionPrompt(event.currentTarget.value)
+    }
+
+    const requestAICompletionResult = async () => {
+        setIsRequestingAICompletion(true)
+        bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+
+        if (aiTextCompletionToken === undefined || aiTextCompletionToken === "") {
+            setAiTextCompletionResult("Missing OpenAI Secret")
+            setIsRequestingAICompletion(false)
+            return
+        }
+        setAiTextCompletionResult("Waiting for result...")
+        const response: AITextCompletionResponse | null = await getTextCompletion(aiTextCompletionToken, aiTextCompletionPrompt)
+        console.log(`Got completion response`, response)
+        if (!response || !response.choices || response.choices.length === 0) {
+            setAiTextCompletionResult("Failed getting text completion result")
+            setIsRequestingAICompletion(false)
+            return
+        }
+        setAiTextCompletionResult(response.choices[0].text)
+        setIsRequestingAICompletion(false)
+        bottomRef.current?.scrollIntoView({behavior: 'smooth'});
     }
 
     const imageUrl = `https://cardographer.cs.nott.ac.uk/platform${focusedCardData.card.frontUrl}`
@@ -127,6 +168,45 @@ const AnalysePageBasic = (props: AnalysePageBasicProps) => {
                     />
                 </div>
 
+            </div>
+            <div className="mb-2 font-bold text-md text-gray-800">AI Service</div>
+            <div className="flex flex-col justify-center text-sm">
+                <div className="w-full flex flex-col mb-2 border border-1 border-transparent rounded-md  ">
+                    <div className="flex flex-row justify-between">
+                        <div className="w-8/12 flex flex-col">
+                            <span className='font-bold text-gray-600'>Prompt</span>
+                            <textarea rows={5} value={aiTextCompletionPrompt} onInput={onAICompletionPromptChange}
+                                      className="content-center text-center rounded-md border border-1 border-gray-300"/>
+                        </div>
+                        <button onClick={requestAICompletionResult}
+                                className="w-3/12 bg-gray-300 rounded-md border-0 mr-3 hover:bg-gray-500 hover:text-white">Ask
+                        </button>
+                    </div>
+
+                    <span className='my-2 font-bold text-gray-600'>Response</span>
+                    {
+                        isRequestingAICompletion ?
+                            <div
+                                className="w-full h-52 border-0 rounded-md bg-gray-300 flex flex-col items-center justify-center">
+                                <div
+                                    className="w-16 h-16 border-4 border-cardographerThemeBG border-solid rounded-full animate-spin border-t-transparent"></div>
+                                <div className="mt-4 font-bold">Waiting for response...</div>
+                            </div>
+                            :
+                            aiTextCompletionResult === "" ?
+                                <div
+                                    className="w-full mt-2 h-80 whitespace-pre-line bg-gray-100 rounded-md border-0">
+                                    {aiTextCompletionResult}
+                                </div>
+                                :
+                                <div
+                                    className="w-full mt-2 h-fit min-h-full whitespace-pre-line bg-gray-100 rounded-md border-0">
+                                    {aiTextCompletionResult}
+                                </div>
+                    }
+                    <div ref={bottomRef}/>
+
+                </div>
             </div>
         </div>
     )

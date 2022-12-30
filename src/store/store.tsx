@@ -26,6 +26,7 @@ export const DISPATCH_TYPES = {
     UPDATE_VERSION_INFO: 'UPDATE_VERSION_INFO',
     LOGIN: 'LOGIN',
     LOGOUT: 'LOGOUT',
+    SET_AI_COMPLETION_TOKEN: 'SET_AI_COMPLETION_TOKEN',
     SET_PAGE: 'SET_PAGE',
     NO_SELECTED_ITEMS: 'NO_SELECTED_ITEMS',
     SET_FOCUSED_CARD: 'SET_FOCUSED_CARD',
@@ -59,6 +60,7 @@ export type DispatchPayload = {
     versionDescription?: string,
     notificationMessage?: string,
     loginState?: LoginState,
+    aiCompletionToken?: string,
     page?: PageType,
     boardData?: { [frameId: string]: BoardFrame } | undefined,
     dataFetchTime?: string | undefined,
@@ -92,13 +94,19 @@ const reducer = (state: Store, action: DispatchAction) => {
     const {type, payload} = action
     switch (type) {
         case DISPATCH_TYPES.UPDATE_VERSION_INFO:
-            return { versionId: payload.versionId, versionDescription: payload.versionDescription, notificationMessage: payload.notificationMessage }
+            return {
+                versionId: payload.versionId,
+                versionDescription: payload.versionDescription,
+                notificationMessage: payload.notificationMessage
+            }
         case DISPATCH_TYPES.SET_NOTIFICATION_MESSAGE:
-            return { notificationMessage: payload.notificationMessage }
+            return {notificationMessage: payload.notificationMessage}
         case DISPATCH_TYPES.LOGIN:
             return {page: PAGE_TYPES.HOME, loginState: payload.loginState}
+        case DISPATCH_TYPES.SET_AI_COMPLETION_TOKEN:
+            return {aiTextCompletionToken: payload.aiCompletionToken}
         case DISPATCH_TYPES.LOGOUT:
-            return {page: PAGE_TYPES.HOME, loginState: {isLoggedIn: false}}
+            return {page: PAGE_TYPES.HOME, loginState: {isLoggedIn: false}, aiTextCompletionToken: undefined}
         case DISPATCH_TYPES.SET_PAGE:
             return {page: payload.page}
         case DISPATCH_TYPES.NO_SELECTED_ITEMS:
@@ -222,10 +230,11 @@ const reducer = (state: Store, action: DispatchAction) => {
 }
 
 type Store = {
-    versionId: string ,
-    versionDescription:string,
-    notificationMessage: string| undefined,
+    versionId: string,
+    versionDescription: string,
+    notificationMessage: string | undefined,
     loginState: LoginState,
+    aiTextCompletionToken: string | undefined,
     page: PageType,
     boardData: { [frameId: string]: BoardFrame } | undefined,
     // RAW DATA in Miro or Cardographer Platform typings: CDG Data
@@ -264,6 +273,7 @@ export const useStore = create<Store>()(persist(
         versionDescription: "",
         notificationMessage: undefined,
         loginState: {isLoggedIn: false},
+        aiTextCompletionToken: undefined,
         page: PAGE_TYPES.HOME,
         boardData: undefined,
         dataFetchTime: undefined,
