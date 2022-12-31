@@ -8,8 +8,8 @@ import {
 import {CardAnalysisDataBox} from "../../components/CardAnalysisDataBox/CardAnalysisDataBox";
 import {nanoid} from "nanoid";
 import {useRef, useState} from "react";
-import {getTextCompletion} from "../../services/openai";
-import {AITextCompletionResponse} from "../../types/ai";
+import {getImageGeneration, getTextCompletion} from "../../services/openai";
+import {AIImageGenerationResponse, AITextCompletionResponse} from "../../types/ai";
 
 interface AnalysePageBasicProps {
     boardData: { [frameId: string]: BoardFrame }
@@ -18,6 +18,7 @@ interface AnalysePageBasicProps {
     caAnalysedSnapshots: CASnapshotAnalyse[],
     caAnalysedCards: Map<string, CACardAnalyseOverview>,
     aiTextCompletionToken: string | undefined,
+    aiImageGenerationToken: string | undefined,
 }
 
 
@@ -28,10 +29,12 @@ const AnalysePageBasic = (props: AnalysePageBasicProps) => {
         focusedCardData,
         caAnalysedCards,
         caAnalysedSnapshots,
-        aiTextCompletionToken
+        aiTextCompletionToken,
+        aiImageGenerationToken
     } = props
 
     const [isRequestingAICompletion, setIsRequestingAICompletion] = useState(false)
+    const [aiAssistantType, setAIAssistantType] = useState("Text")
     const [aiTextCompletionPrompt, setAiTextCompletionPrompt] = useState(`What are the factors to consider when designing a product with the concept of ${focusedCardData.card.name}?`)
     const [aiTextCompletionResult, setAiTextCompletionResult] = useState(``)
     const bottomRef = useRef<null | HTMLDivElement>(null)
@@ -77,16 +80,17 @@ const AnalysePageBasic = (props: AnalysePageBasicProps) => {
         setAiTextCompletionPrompt(event.currentTarget.value)
     }
 
-    const requestAICompletionResult = async () => {
+    const requestAITextCompletionResult = async () => {
+        setAIAssistantType("Text")
         setIsRequestingAICompletion(true)
         bottomRef.current?.scrollIntoView({behavior: 'smooth'});
 
         if (aiTextCompletionToken === undefined || aiTextCompletionToken === "") {
-            setAiTextCompletionResult("Missing OpenAI Secret")
+            setAiTextCompletionResult("Missing Language Model API Secret")
             setIsRequestingAICompletion(false)
             return
         }
-        setAiTextCompletionResult("Waiting for result...")
+        setAiTextCompletionResult("Generating result...")
         const response: AITextCompletionResponse | null = await getTextCompletion(aiTextCompletionToken, aiTextCompletionPrompt)
         console.log(`Got completion response`, response)
         if (!response || !response.choices || response.choices.length === 0) {
@@ -98,6 +102,69 @@ const AnalysePageBasic = (props: AnalysePageBasicProps) => {
         setIsRequestingAICompletion(false)
         bottomRef.current?.scrollIntoView({behavior: 'smooth'});
     }
+
+    const requestAIImageCompletionResult = async () => {
+        setAIAssistantType('Image')
+        setIsRequestingAICompletion(true)
+        bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+
+        if (aiImageGenerationToken === undefined || aiImageGenerationToken === "") {
+            setAiTextCompletionResult("Missing Image Model API Secret")
+            setIsRequestingAICompletion(false)
+            return
+        }
+        setAiTextCompletionResult("Generating image...")
+        const response: AIImageGenerationResponse | null = await getImageGeneration(aiImageGenerationToken, aiTextCompletionPrompt, 1, "256x256")
+        console.log(`Got image generation response`, response)
+        if (!response || !response.data || response.data.length === 0) {
+            console.log('Failed generating image')
+            setAiTextCompletionResult("Failed generating image")
+            setIsRequestingAICompletion(false)
+            return
+        }
+        console.log('Update result panel with image url ' + response.data[0].url)
+        setAiTextCompletionResult(response.data[0].url)
+        setIsRequestingAICompletion(false)
+        bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+    }
+
+    let aiResultDiv = <div
+        className="w-full h-52 border-0 rounded-md bg-gray-300 flex flex-col items-center justify-center">
+        <div
+            className="w-16 h-16 border-4 border-cardographerThemeBG border-solid rounded-full animate-spin border-t-transparent"></div>
+        <div className="mt-4 font-bold">Waiting for response...</div>
+    </div>
+
+    if (!isRequestingAICompletion) {
+        switch (aiAssistantType) {
+            case "Text":
+                aiResultDiv = aiTextCompletionResult === "" ?
+                    <div
+                        className="w-full mt-2 h-80 whitespace-pre-line bg-gray-100 rounded-md border-0">
+                        {aiTextCompletionResult}
+                    </div>
+                    :
+                    <div
+                        className="w-full mt-2 h-fit min-h-full whitespace-pre-line bg-gray-100 rounded-md border-0">
+                        {aiTextCompletionResult}
+                    </div>
+                break
+            case "Image":
+                aiResultDiv = aiTextCompletionResult === "" ?
+                    <div
+                        className="w-full mt-2 h-80 whitespace-pre-line bg-gray-100 rounded-md border-0">
+                        Error generating images
+                    </div>
+                    :
+                    <div
+                        className="w-full mt-2 h-fit min-h-full whitespace-pre-line bg-gray-100 rounded-md border-0">
+                        <img src={aiTextCompletionResult}
+                             className="w-full rounded-md"/>
+                    </div>
+                break
+        }
+    }
+
 
     const imageUrl = `https://cardographer.cs.nott.ac.uk/platform${focusedCardData.card.frontUrl}`
     return (
@@ -169,45 +236,32 @@ const AnalysePageBasic = (props: AnalysePageBasicProps) => {
                 </div>
 
             </div>
-            <div className="mb-2 font-bold text-md text-gray-800">AI Service</div>
+            <div className="mb-2 font-bold text-md text-gray-800">AI Assistant</div>
             <div className="flex flex-col justify-center text-sm">
                 <div className="w-full flex flex-col mb-2 border border-1 border-transparent rounded-md  ">
-                    <div className="flex flex-row justify-between">
-                        <div className="w-8/12 flex flex-col">
-                            <span className='font-bold text-gray-600'>Prompt</span>
-                            <textarea rows={5} value={aiTextCompletionPrompt} onInput={onAICompletionPromptChange}
-                                      className="content-center text-center rounded-md border border-1 border-gray-300"/>
-                        </div>
-                        <button onClick={requestAICompletionResult}
-                                className="w-3/12 bg-gray-300 rounded-md border-0 mr-3 hover:bg-gray-500 hover:text-white">Ask
+                    <span className='font-bold text-gray-600'>Prompt</span>
+                    <textarea rows={5} value={aiTextCompletionPrompt} onInput={onAICompletionPromptChange}
+                              className="content-center text-center rounded-md border border-1 border-gray-300"/>
+                    <div className="w-full mt-5 flex flex-row justify-between">
+                        <button onClick={requestAITextCompletionResult}
+                                className="w-36 h-14 bg-gray-300 rounded-md border-0  hover:bg-gray-500 hover:text-white">
+                            <span className="">Text</span>
+                        </button>
+                        <button onClick={requestAIImageCompletionResult}
+                                className="w-36 h-14 bg-gray-300 rounded-md border-0  hover:bg-gray-500 hover:text-white">
+                            <span className="">Image</span>
                         </button>
                     </div>
 
                     <span className='my-2 font-bold text-gray-600'>Response</span>
                     {
-                        isRequestingAICompletion ?
-                            <div
-                                className="w-full h-52 border-0 rounded-md bg-gray-300 flex flex-col items-center justify-center">
-                                <div
-                                    className="w-16 h-16 border-4 border-cardographerThemeBG border-solid rounded-full animate-spin border-t-transparent"></div>
-                                <div className="mt-4 font-bold">Waiting for response...</div>
-                            </div>
-                            :
-                            aiTextCompletionResult === "" ?
-                                <div
-                                    className="w-full mt-2 h-80 whitespace-pre-line bg-gray-100 rounded-md border-0">
-                                    {aiTextCompletionResult}
-                                </div>
-                                :
-                                <div
-                                    className="w-full mt-2 h-fit min-h-full whitespace-pre-line bg-gray-100 rounded-md border-0">
-                                    {aiTextCompletionResult}
-                                </div>
+                        aiResultDiv
                     }
                     <div ref={bottomRef}/>
 
                 </div>
             </div>
+
         </div>
     )
 }

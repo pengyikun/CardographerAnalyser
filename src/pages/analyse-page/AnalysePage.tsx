@@ -19,7 +19,8 @@ const AnalysePage = () => {
         focusedCardData,
         caAnalysedCards,
         caCards,
-        aiTextCompletionToken
+        aiTextCompletionToken,
+        aiImageGenerationToken
     } = useStore((state) => ({
         caCards: state.caCards,
         caAnalysedSnapshots: state.caAnalysedSnapshots,
@@ -28,6 +29,7 @@ const AnalysePage = () => {
         boardData: state.boardData,
         caAnalysedCards: state.caAnalysedCards,
         aiTextCompletionToken: state.aiTextCompletionToken,
+        aiImageGenerationToken: state.aiImageGenerationToken,
     }), shallow)
 
     const [page, setPage] = useState<AnalyzePageType>(ANALYZE_PAGE_TYPES.BASIC)
@@ -44,6 +46,7 @@ const AnalysePage = () => {
                                         caAnalysedSnapshots={caAnalysedSnapshots}
                                         caAnalysedCards={caAnalysedCards}
                                         aiTextCompletionToken={aiTextCompletionToken}
+                                        aiImageGenerationToken={aiImageGenerationToken}
         />
 
     } else if (page === ANALYZE_PAGE_TYPES["FRAME"]) {

@@ -61,6 +61,7 @@ export type DispatchPayload = {
     notificationMessage?: string,
     loginState?: LoginState,
     aiCompletionToken?: string,
+    aiImageGenerationToken?: string,
     page?: PageType,
     boardData?: { [frameId: string]: BoardFrame } | undefined,
     dataFetchTime?: string | undefined,
@@ -104,7 +105,10 @@ const reducer = (state: Store, action: DispatchAction) => {
         case DISPATCH_TYPES.LOGIN:
             return {page: PAGE_TYPES.HOME, loginState: payload.loginState}
         case DISPATCH_TYPES.SET_AI_COMPLETION_TOKEN:
-            return {aiTextCompletionToken: payload.aiCompletionToken}
+            return {
+                aiTextCompletionToken: payload.aiCompletionToken,
+                aiImageGenerationToken: payload?.aiImageGenerationToken
+            }
         case DISPATCH_TYPES.LOGOUT:
             return {page: PAGE_TYPES.HOME, loginState: {isLoggedIn: false}, aiTextCompletionToken: undefined}
         case DISPATCH_TYPES.SET_PAGE:
@@ -235,6 +239,7 @@ type Store = {
     notificationMessage: string | undefined,
     loginState: LoginState,
     aiTextCompletionToken: string | undefined,
+    aiImageGenerationToken: string | undefined,
     page: PageType,
     boardData: { [frameId: string]: BoardFrame } | undefined,
     // RAW DATA in Miro or Cardographer Platform typings: CDG Data
@@ -274,6 +279,7 @@ export const useStore = create<Store>()(persist(
         notificationMessage: undefined,
         loginState: {isLoggedIn: false},
         aiTextCompletionToken: undefined,
+        aiImageGenerationToken: undefined,
         page: PAGE_TYPES.HOME,
         boardData: undefined,
         dataFetchTime: undefined,

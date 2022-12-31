@@ -11,3 +11,12 @@ export interface AITextCompletionChoices {
     index: number,
     finish_reason: string,
 }
+
+export interface AIImageGenerationResponse {
+    created: number,
+    data: AIImageGenerationData[]
+}
+
+export interface AIImageGenerationData {
+    url: string,
+}
