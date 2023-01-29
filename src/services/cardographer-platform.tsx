@@ -61,7 +61,8 @@ export const fetchSnapShotDetail = async (token: string, sessionId: string) => {
     })
     const {status} = res
     if (status === 200) {
-        const snapshot: CDGSnapshot = res.data.session
+        console.log(res)
+        const snapshot: CDGSnapshot = res.data
         console.log(snapshot)
         return snapshot
 
@@ -164,6 +165,7 @@ export const uploadSession = async (token: string, sessionData: { widgets: Board
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    //origin: 'https://cardographer.cs.nott.ac.uk'
                 },
             })
         const {status} = res
